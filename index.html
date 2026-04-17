@@ -310,14 +310,14 @@
                 <div id="searchSuggestions" class="suggestions" style="display: none;"></div>
             </div>
             <div id="cartItems"></div>
-            <div class="form-group"><label>💰 الإجمالي</label><div class="total-price" id="cartTotal">0.00 ر.س</div></div>
+            <div class="form-group"><label>💰 الإجمالي</label><div class="total-price" id="cartTotal">0.00 ج.س</div></div>
             <div class="grid-2">
                 <select id="paymentMethod">
                     <option value="cash">💵 نقدي</option>
                     <option value="transfer">🏦 تحويل بنكي</option>
                     <option value="credit">📝 آجل (دين)</option>
                 </select>
-                <input type="number" id="discountInput" placeholder="خصم (ر.س)" value="0">
+                <input type="number" id="discountInput" placeholder="خصم (ج.س)" value="0">
             </div>
             <button id="completeSaleBtn"><i class="fas fa-receipt"></i> إنهاء البيع وطباعة</button>
             <div class="alert small-text" id="posMessage"></div>
@@ -368,9 +368,9 @@
             <div class="grid-2"><input type="number" id="expenseAmount" placeholder="مبلغ المصروف"><input type="text" id="expenseDesc" placeholder="البيان"></div>
             <button id="addExpenseBtn"><i class="fas fa-minus-circle"></i> تسجيل مصروف</button>
             <div class="card" style="margin-top:14px; background:#fef7f7;">
-                <p><strong>📈 إجمالي الإيرادات:</strong> <span id="totalRevenueSpan">0</span> ر.س</p>
-                <p><strong>📉 إجمالي المصروفات:</strong> <span id="totalExpensesSpan">0</span> ر.س</p>
-                <p><strong>🏆 صافي الأرباح:</strong> <span id="netProfitSpan">0</span> ر.س</p>
+                <p><strong>📈 إجمالي الإيرادات:</strong> <span id="totalRevenueSpan">0</span> ج.س</p>
+                <p><strong>📉 إجمالي المصروفات:</strong> <span id="totalExpensesSpan">0</span> ج.س</p>
+                <p><strong>🏆 صافي الأرباح:</strong> <span id="netProfitSpan">0</span> ج.س</p>
             </div>
         </div>
     </div>
@@ -413,15 +413,15 @@
         inventory.forEach(p => {
             let expiryDisplay = p.expiry && p.expiry !== "undefined" ? p.expiry : "غير محدد";
             html += `<tr>
-                          <td>${p.name}<br><span class="badge">${p.barcode}</span></td>
-                          <td>${p.quantity}</td>
-                          <td>${p.price} ر.س</td>
-                          <td>${expiryDisplay}</td>
-                        <td class="product-actions">
-                            <button class="warning" onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i> تعديل</button>
-                            <button class="danger" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i> حذف</button>
-                          </td>
-                       </tr>`;
+                           <td>${p.name}<br><span class="badge">${p.barcode}</span></td>
+                           <td>${p.quantity}</td>
+                           <td>${p.price} ج.س</td>
+                           <td>${expiryDisplay}</td>
+                           <td class="product-actions">
+                               <button class="warning" onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i> تعديل</button>
+                               <button class="danger" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i> حذف</button>
+                           </td>
+                        </tr>`;
         });
         html += `</tbody></table>`;
         container.innerHTML = html;
@@ -498,7 +498,7 @@
         matches.slice(0,5).forEach(prod => {
             let div = document.createElement("div");
             div.className = "suggestion-item";
-            div.innerHTML = `<span><strong>${prod.name}</strong> (${prod.barcode})</span><span>${prod.price} ر.س | متوفر: ${prod.quantity}</span>`;
+            div.innerHTML = `<span><strong>${prod.name}</strong> (${prod.barcode})</span><span>${prod.price} ج.س | متوفر: ${prod.quantity}</span>`;
             div.onclick = () => {
                 document.getElementById("productSearchInput").value = prod.barcode;
                 suggDiv.style.display = "none";
@@ -523,16 +523,16 @@
     function renderCart() {
         let cartDiv = document.getElementById("cartItems");
         if (!cartDiv) return;
-        if (currentCart.length === 0) { cartDiv.innerHTML = "<div class='alert'>🛒 السلة فارغة</div>"; document.getElementById("cartTotal").innerText = "0.00 ر.س"; return; }
+        if (currentCart.length === 0) { cartDiv.innerHTML = "<div class='alert'>🛒 السلة فارغة</div>"; document.getElementById("cartTotal").innerText = "0.00 ج.س"; return; }
         let total = 0;
         let html = "";
         currentCart.forEach((item, idx) => {
             let sub = item.qty * item.price;
             total += sub;
-            html += `<div class="bill-item"><span>${item.name} x${item.qty}</span><span>${sub} ر.س <button class="danger" style="width:auto; padding:4px 8px;" onclick="removeFromCart(${idx})"><i class="fas fa-trash"></i></button></span></div>`;
+            html += `<div class="bill-item"><span>${item.name} x${item.qty}</span><span>${sub} ج.س <button class="danger" style="width:auto; padding:4px 8px;" onclick="removeFromCart(${idx})"><i class="fas fa-trash"></i></button></span></div>`;
         });
         cartDiv.innerHTML = html;
-        document.getElementById("cartTotal").innerText = total.toFixed(2) + " ر.س";
+        document.getElementById("cartTotal").innerText = total.toFixed(2) + " ج.س";
     }
     
     window.removeFromCart = function(idx) { currentCart.splice(idx,1); renderCart(); };
@@ -559,8 +559,8 @@
         currentCart = [];
         renderCart();
         document.getElementById("discountInput").value = "0";
-        showPosMsg(`✅ فاتورة ${final} ر.س - ${method === "credit" ? "آجل" : "مدفوع"}`, "success");
-        alert(`🧾 بقالة أبو فارس\nالمبلغ: ${final} ر.س\nشكراً لك`);
+        showPosMsg(`✅ فاتورة ${final} ج.س - ${method === "credit" ? "آجل" : "مدفوع"}`, "success");
+        alert(`🧾 بقالة أبو فارس\nالمبلغ: ${final} ج.س\nشكراً لك`);
     }
     
     function addPurchase() {
@@ -589,7 +589,7 @@
     function renderCustomers() {
         let div = document.getElementById("customersList");
         let html = "<h4>قائمة العملاء</h4><ul>";
-        customers.forEach(c => { html += `<li>${c.name} : دين ${(c.debt||0).toFixed(2)} ر.س <button class="danger" style="width:auto; display:inline-block; padding:2px 8px;" onclick="payDebt('${c.name}')">تسديد</button></li>`; });
+        customers.forEach(c => { html += `<li>${c.name} : دين ${(c.debt||0).toFixed(2)} ج.س <button class="danger" style="width:auto; display:inline-block; padding:2px 8px;" onclick="payDebt('${c.name}')">تسديد</button></li>`; });
         html += "</ul>";
         if(!customers.length) html += "<div>لا يوجد عملاء</div>";
         div.innerHTML = html;
@@ -633,7 +633,7 @@
         let todaySales = salesHistory.filter(s => new Date(s.date).toLocaleDateString() === today);
         let html = `<h4>مبيعات اليوم ${today}</h4>`;
         if(!todaySales.length) html += "<div>لا توجد مبيعات</div>";
-        else { let total=0; todaySales.forEach(s=>{ total+=s.total; html+=`<div>فاتورة: ${s.total} ر.س - ${s.paymentMethod}</div>`; }); html+=`<strong>الإجمالي: ${total} ر.س</strong>`; }
+        else { let total=0; todaySales.forEach(s=>{ total+=s.total; html+=`<div>فاتورة: ${s.total} ج.س - ${s.paymentMethod}</div>`; }); html+=`<strong>الإجمالي: ${total} ج.س</strong>`; }
         document.getElementById("reportResult").innerHTML = html;
     }
     
@@ -649,7 +649,7 @@
     
     function debtReport() {
         let html = "<h4>📋 تقرير الديون</h4><ul>";
-        customers.forEach(c=>{ if(c.debt>0) html+=`<li>${c.name} : ${c.debt.toFixed(2)} ر.س</li>`; });
+        customers.forEach(c=>{ if(c.debt>0) html+=`<li>${c.name} : ${c.debt.toFixed(2)} ج.س</li>`; });
         html+="</ul>";
         document.getElementById("reportResult").innerHTML = html;
     }

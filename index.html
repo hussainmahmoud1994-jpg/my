@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>بقالة أبو فارس - النظام المحاسبي</title>
     
-    <!-- PWA Meta Tags & Manifest -->
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22%D8%A8%D9%82%D8%A7%D9%84%D8%A9%20%D8%A3%D8%A8%D9%88%20%D9%81%D8%A7%D8%B1%D8%B3%22,%22short_name%22:%22%D8%A3%D8%A8%D9%88%20%D9%81%D8%A7%D8%B1%D8%B3%22,%22description%22:%22%D9%86%D8%B8%D8%A7%D9%85%20%D9%85%D8%AD%D8%A7%D8%B3%D8%A8%D9%8A%20%D9%85%D8%AA%D9%83%D8%A7%D9%85%D9%84%20%D9%84%D9%84%D8%A8%D9%82%D8%A7%D9%84%D8%A9%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22theme_color%22:%22%23C1272D%22,%22background_color%22:%22%23ffffff%22,%22lang%22:%22ar%22,%22dir%22:%22rtl%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20fill%3D%22%23C1272D%22%2F%3E%3Ctext%20x%3D%2250%22%20y%3D%2267%22%20font-size%3D%2260%22%20text-anchor%3D%22middle%22%20fill%3D%22white%22%20font-family%3D%22Arial%22%3E%D8%A8%3C%2Ftext%3E%3C%2Fsvg%3E%22,%22sizes%22:%22any%22,%22type%22:%22image%2Fsvg+xml%22}]}">
+    <!-- PWA Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="بقالة أبو فارس">
@@ -29,7 +28,6 @@
             color: #1e1e1e;
         }
 
-        /* الحاوية الرئيسية - مستوحاة من تطبيق بنك الخرطوم (أحمر / أبيض) */
         .app-container {
             max-width: 600px;
             margin: 0 auto;
@@ -41,7 +39,6 @@
             border: 1px solid #e0e0e0;
         }
 
-        /* الهيدر الأحمر */
         .header {
             background: #C1272D;
             margin: -18px -14px 20px -14px;
@@ -74,7 +71,6 @@
             border: 1px solid rgba(255,255,255,0.3);
         }
 
-        /* شريط التنقل - أبيض مع حدود حمراء */
         .nav-tabs {
             display: flex;
             flex-wrap: wrap;
@@ -123,7 +119,6 @@
             to { opacity: 1; transform: translateY(0);}
         }
 
-        /* بطاقات بيضاء بحواف حمراء خفيفة */
         .card {
             background: white;
             border-radius: 24px;
@@ -390,7 +385,7 @@
             <div id="reportResult" class="scroll-table" style="margin-top:15px"></div>
         </div>
     </div>
-    <footer>بقالة أبو فارس | بنظام ألوان بنك الخرطوم 🇸🇩</footer>
+    <footer>بقالة أبو فارس</footer>
 </div>
 
 <script>
@@ -416,23 +411,25 @@
         if (!container) return;
         let html = `<table><thead><tr><th>المنتج</th><th>الكمية</th><th>السعر</th><th>الصلاحية</th><th>العمليات</th></tr></thead><tbody>`;
         inventory.forEach(p => {
+            let expiryDisplay = p.expiry && p.expiry !== "undefined" ? p.expiry : "غير محدد";
             html += `<tr>
-                         <td>${p.name}<br><span class="badge">${p.barcode}</span></td>
-                         <td>${p.quantity}</td>
-                         <td>${p.price} ر.س</td>
-                         <td>${p.expiry || 'غير محدد'}</td>
+                          <td>${p.name}<br><span class="badge">${p.barcode}</span></td>
+                          <td>${p.quantity}</td>
+                          <td>${p.price} ر.س</td>
+                          <td>${expiryDisplay}</td>
                         <td class="product-actions">
                             <button class="warning" onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i> تعديل</button>
                             <button class="danger" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i> حذف</button>
-                         </td>
-                      </tr>`;
+                          </td>
+                       </tr>`;
         });
         html += `</tbody></table>`;
         container.innerHTML = html;
+        
         let alerts = [];
         inventory.forEach(p => {
             if (p.quantity <= 2) alerts.push(`⚠️ منتج ${p.name} شارف على النفاد (${p.quantity})`);
-            if (p.expiry && new Date(p.expiry) < new Date(new Date().setMonth(new Date().getMonth() + 1)))
+            if (p.expiry && p.expiry !== "undefined" && new Date(p.expiry) < new Date(new Date().setMonth(new Date().getMonth() + 1)))
                 alerts.push(`⏰ قرب انتهاء صلاحية ${p.name} (${p.expiry})`);
         });
         document.getElementById("stockAlert").innerHTML = alerts.length ? alerts.join("<br>") : "✅ المخزون جيد";
@@ -447,6 +444,7 @@
             showPosMsg("تم حذف المنتج", "error");
         }
     };
+    
     window.editProduct = function(id) {
         const prod = inventory.find(p => p.id === id);
         if (!prod) return;
@@ -464,6 +462,7 @@
         renderCart();
         showPosMsg("تم التعديل بنجاح", "success");
     };
+    
     function addNewProduct() {
         let name = prompt("اسم المنتج الجديد:");
         if (!name) return;
@@ -486,6 +485,7 @@
         if (exact) return exact;
         return inventory.find(p => p.name.toLowerCase().includes(s));
     }
+    
     function updateSuggestions() {
         let input = document.getElementById("productSearchInput");
         let query = input.value.trim().toLowerCase();
@@ -507,6 +507,7 @@
             suggDiv.appendChild(div);
         });
     }
+    
     function addToCart(val) {
         let product = findProduct(val);
         if (!product) { showPosMsg(`❌ المنتج "${val}" غير موجود`, "error"); return false; }
@@ -518,6 +519,7 @@
         showPosMsg(`✅ ${product.name} أضيف إلى السلة`, "success");
         return true;
     }
+    
     function renderCart() {
         let cartDiv = document.getElementById("cartItems");
         if (!cartDiv) return;
@@ -532,7 +534,9 @@
         cartDiv.innerHTML = html;
         document.getElementById("cartTotal").innerText = total.toFixed(2) + " ر.س";
     }
+    
     window.removeFromCart = function(idx) { currentCart.splice(idx,1); renderCart(); };
+    
     function completeSale() {
         if (currentCart.length === 0) { alert("لا توجد منتجات"); return; }
         let total = currentCart.reduce((s,i)=> s + i.qty * i.price,0);
@@ -558,6 +562,7 @@
         showPosMsg(`✅ فاتورة ${final} ر.س - ${method === "credit" ? "آجل" : "مدفوع"}`, "success");
         alert(`🧾 بقالة أبو فارس\nالمبلغ: ${final} ر.س\nشكراً لك`);
     }
+    
     function addPurchase() {
         let supplier = document.getElementById("supplierName").value.trim();
         let pname = document.getElementById("productNamePurchase").value.trim();
@@ -566,13 +571,21 @@
         let expiry = document.getElementById("expiryDatePurchase").value;
         if (!pname || isNaN(qty) || isNaN(price)) { alert("املأ البيانات"); return; }
         let exist = inventory.find(p => p.name.toLowerCase() === pname.toLowerCase());
-        if (exist) { exist.quantity += qty; if(expiry) exist.expiry = expiry; }
-        else { inventory.push({ id: generateId(), name: pname, barcode: "bc"+Date.now(), quantity: qty, price: price+5, expiry: expiry || "2026-01-01" }); }
+        if (exist) { 
+            exist.quantity += qty; 
+            if(expiry && expiry !== "") exist.expiry = expiry; 
+        } else { 
+            inventory.push({ id: generateId(), name: pname, barcode: "bc"+Date.now(), quantity: qty, price: price+5, expiry: expiry || "" }); 
+        }
         if (supplier && !suppliers.find(s=> s.name === supplier)) suppliers.push({ name: supplier });
         document.getElementById("purchaseLog").innerHTML = `✅ تم شراء ${qty} من ${pname}`;
         renderInventory();
-        document.getElementById("productNamePurchase").value = ""; document.getElementById("quantityPurchase").value = ""; document.getElementById("pricePurchase").value = "";
+        document.getElementById("productNamePurchase").value = ""; 
+        document.getElementById("quantityPurchase").value = ""; 
+        document.getElementById("pricePurchase").value = "";
+        document.getElementById("expiryDatePurchase").value = "";
     }
+    
     function renderCustomers() {
         let div = document.getElementById("customersList");
         let html = "<h4>قائمة العملاء</h4><ul>";
@@ -587,6 +600,7 @@
         if(!suppliers.length) suppHtml += "<div>لا يوجد موردين</div>";
         suppDiv.innerHTML = suppHtml;
     }
+    
     window.payDebt = function(name) {
         let cust = customers.find(c=>c.name===name);
         if(cust && cust.debt>0){
@@ -594,6 +608,7 @@
             if(paid && !isNaN(parseFloat(paid))){ cust.debt -= parseFloat(paid); if(cust.debt<0) cust.debt=0; renderCustomers(); updateAccounting();}
         }
     };
+    
     function updateAccounting() {
         let rev = salesHistory.reduce((s,i)=> s + i.total,0);
         let exp = expenses.reduce((s,i)=> s + i.amount,0);
@@ -601,6 +616,7 @@
         document.getElementById("totalExpensesSpan").innerText = exp.toFixed(2);
         document.getElementById("netProfitSpan").innerText = (rev-exp).toFixed(2);
     }
+    
     function addExpense() {
         let amt = parseFloat(document.getElementById("expenseAmount").value);
         let desc = document.getElementById("expenseDesc").value;
@@ -610,6 +626,7 @@
         document.getElementById("expenseAmount").value = ""; document.getElementById("expenseDesc").value = "";
         alert("تم تسجيل المصروف");
     }
+    
     // تقارير
     function dailyReport() {
         let today = new Date().toLocaleDateString();
@@ -619,6 +636,7 @@
         else { let total=0; todaySales.forEach(s=>{ total+=s.total; html+=`<div>فاتورة: ${s.total} ر.س - ${s.paymentMethod}</div>`; }); html+=`<strong>الإجمالي: ${total} ر.س</strong>`; }
         document.getElementById("reportResult").innerHTML = html;
     }
+    
     function bestProductsReport() {
         let map = {};
         salesHistory.forEach(sale => sale.items.forEach(item => { map[item.name] = (map[item.name]||0) + item.qty; }));
@@ -628,13 +646,16 @@
         html+="</ol>";
         document.getElementById("reportResult").innerHTML = html;
     }
+    
     function debtReport() {
         let html = "<h4>📋 تقرير الديون</h4><ul>";
         customers.forEach(c=>{ if(c.debt>0) html+=`<li>${c.name} : ${c.debt.toFixed(2)} ر.س</li>`; });
         html+="</ul>";
         document.getElementById("reportResult").innerHTML = html;
     }
+    
     function showPosMsg(msg,type){ let el=document.getElementById("posMessage"); el.innerHTML=msg; setTimeout(()=>{if(el.innerHTML===msg) el.innerHTML="";},2500);}
+    
     function switchPage(pageId) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
         document.getElementById(pageId+"Page").classList.add('active-page');
@@ -644,6 +665,7 @@
         if(pageId==="customers") renderCustomers();
         if(pageId==="accounts") updateAccounting();
     }
+    
     document.getElementById("addToCartBtn").onclick = () => { let v = document.getElementById("productSearchInput").value; if(v) addToCart(v); document.getElementById("productSearchInput").value=""; };
     document.getElementById("completeSaleBtn").onclick = completeSale;
     document.getElementById("addPurchaseBtn").onclick = addPurchase;
@@ -657,14 +679,8 @@
     document.getElementById("debtReportBtn").onclick = debtReport;
     document.getElementById("productSearchInput").addEventListener("input", updateSuggestions);
     document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>switchPage(btn.getAttribute("data-page"))));
-    renderInventory(); renderCart(); updateAccounting(); renderCustomers();
     
-    // تسجيل Service Worker ليعمل التطبيق بدون إنترنت ويُثبت على الشاشة
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js').catch(err => console.log('ServiceWorker registration failed: ', err));
-    } else {
-        console.log('Service workers not supported');
-    }
+    renderInventory(); renderCart(); updateAccounting(); renderCustomers();
 </script>
 </body>
 </html>
